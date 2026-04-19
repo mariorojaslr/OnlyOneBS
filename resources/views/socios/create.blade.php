@@ -10,7 +10,7 @@
         </a>
         <div>
             <h1 class="text-4xl font-black text-white tracking-tighter">{{ __('Crear Socio / Flota') }}</h1>
-            <p class="text-slate-500 mt-2 font-medium">{{ __('Configura un nivel de Marca Blanca o Sucursal Provincial.') }}</p>
+            <p class="text-slate-500 mt-2 font-medium">{{ __('Configura un nivel de Dueño o Sucursal Provincial.') }}</p>
         </div>
     </div>
 
@@ -33,7 +33,7 @@
                 <div>
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">{{ __('Nivel de Jerarquía') }}</label>
                     <select name="nivel" x-model="nivel" class="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all">
-                        <option value="1">{{ __('Dueño Marca Blanca (L1)') }}</option>
+                        <option value="1">{{ __('Dueño de Empresa (L1)') }}</option>
                         <option value="2">{{ __('Provincia / Sucursal (L2)') }}</option>
                     </select>
                 </div>

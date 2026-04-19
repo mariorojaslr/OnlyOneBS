@@ -7,7 +7,7 @@
     <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
         <div>
             <h1 class="text-4xl font-black text-white tracking-tighter">{{ __('Dueños y Flotas') }}</h1>
-            <p class="text-slate-500 mt-2 font-medium">{{ __('Administra la jerarquía de Marca Blanca y Provincias.') }}</p>
+            <p class="text-slate-500 mt-2 font-medium">{{ __('Administra la jerarquía de Dueños y Provincias.') }}</p>
         </div>
         <a href="{{ route('socios.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-3">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0h-3m-9-1s-1 0-1 1v5a1 1 0 001 1h10a1 1 0 001-1V8l-3-3H6z"></path></svg>
@@ -42,7 +42,7 @@
                     <td class="px-8 py-6">
                         @if($s->nivel == 1)
                             <span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider">
-                                {{ __('Dueño Marca Blanca') }} (L1)
+                                {{ __('Dueño de Empresa') }} (L1)
                             </span>
                         @else
                             <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider">
