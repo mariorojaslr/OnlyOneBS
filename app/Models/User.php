@@ -14,6 +14,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     const ROLE_SUPERADMIN = 'superadmin';
+    const ROLE_OWNER = 'owner';
     const ROLE_ADMIN = 'admin';
     const ROLE_SOCIO = 'socio';
     const ROLE_ADMIN_VIEW = 'admin_view';
@@ -32,8 +33,8 @@ class User extends Authenticatable
         'locale'
     ];
 
-    public function isSuperAdmin() { return $this->role === self::ROLE_SUPERADMIN; }
-    public function isAdmin() { return in_array($this->role, [self::ROLE_SUPERADMIN, self::ROLE_ADMIN]); }
+    public function isSuperAdmin() { return in_array($this->role, [self::ROLE_SUPERADMIN, self::ROLE_OWNER]); }
+    public function isAdmin() { return in_array($this->role, [self::ROLE_SUPERADMIN, self::ROLE_OWNER, self::ROLE_ADMIN]); }
     public function isSocio() { return $this->role === self::ROLE_SOCIO; }
     public function isAdminView() { return $this->role === self::ROLE_ADMIN_VIEW; }
     public function isEmpresa() { return $this->role === self::ROLE_EMPRESA; }
