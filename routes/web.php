@@ -7,6 +7,9 @@ use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\PasajeroController;
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SocioController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
