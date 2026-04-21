@@ -13,10 +13,12 @@ class SocioController extends Controller
         $user = auth()->user();
         if ($user->isSuperAdmin()) {
             $socios = Socio::with('parent')->get();
+        } elseif ($user->isOwner()) {
+            $mySocio = $user->socio;
+            $socios = Socio::where('id', $mySocio->id)->orWhere('parent_id', $mySocio->id)->with('parent')->get();
         } elseif ($user->isSocio()) {
             $mySocio = $user->socio;
-            // Un dueño de nivel 1 ve sus sucursales
-            $socios = Socio::where('id', $mySocio->id)->orWhere('parent_id', $mySocio->id)->get();
+            $socios = Socio::where('id', $mySocio->id)->with('parent')->get();
         } else {
             abort(403);
         }

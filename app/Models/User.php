@@ -33,9 +33,10 @@ class User extends Authenticatable
         'locale'
     ];
 
-    public function isSuperAdmin() { return in_array($this->role, [self::ROLE_SUPERADMIN, self::ROLE_OWNER]); }
+    public function isSuperAdmin() { return $this->role === self::ROLE_SUPERADMIN; }
+    public function isOwner() { return $this->role === self::ROLE_OWNER || ($this->role === self::ROLE_SOCIO && $this->socio?->nivel == 1); }
     public function isAdmin() { return in_array($this->role, [self::ROLE_SUPERADMIN, self::ROLE_OWNER, self::ROLE_ADMIN]); }
-    public function isSocio() { return $this->role === self::ROLE_SOCIO; }
+    public function isSocio() { return $this->role === self::ROLE_SOCIO && $this->socio?->nivel == 2; }
     public function isAdminView() { return $this->role === self::ROLE_ADMIN_VIEW; }
     public function isEmpresa() { return $this->role === self::ROLE_EMPRESA; }
 

@@ -3,21 +3,58 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Pasajero;
+use App\Models\CentroCosto;
+use App\Models\Empresa;
 
 class PasajeroController extends Controller
 {
+    /**
+     * Helper: obtener IDs de empresas visibles para el usuario actual.
+     */
+    private function getEmpresaIds()
+    {
+        $user = auth()->user();
+
+        if ($user->isSuperAdmin()) {
+            return Empresa::pluck('id')->toArray();
+        } elseif ($user->isOwner() || $user->isSocio()) {
+            $mySocio = $user->socio;
+            if ($mySocio && $mySocio->nivel == 1) {
+                $socioIds = $mySocio->children()->pluck('id')->toArray();
+                $socioIds[] = $mySocio->id;
+                return Empresa::whereIn('socio_id', $socioIds)->pluck('id')->toArray();
+            } else {
+                return Empresa::where('socio_id', $mySocio->id)->pluck('id')->toArray();
+            }
+        } elseif ($user->isEmpresa()) {
+            return [$user->empresa_id];
+        }
+
+        return [];
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $pasajeros = \App\Models\Pasajero::with('centroCosto.empresa')->get();
+        $empresaIds = $this->getEmpresaIds();
+        $centroIds = CentroCosto::whereIn('empresa_id', $empresaIds)->pluck('id');
+        $pasajeros = Pasajero::with('centroCosto.empresa')
+            ->whereIn('centro_costo_id', $centroIds)
+            ->get();
+
         return view('pasajeros.index', compact('pasajeros'));
     }
 
     public function create()
     {
-        $centros = \App\Models\CentroCosto::with('empresa')->get();
+        $empresaIds = $this->getEmpresaIds();
+        $centros = CentroCosto::with('empresa')
+            ->whereIn('empresa_id', $empresaIds)
+            ->get();
+
         return view('pasajeros.create', compact('centros'));
     }
 
@@ -34,7 +71,7 @@ class PasajeroController extends Controller
             'nombre_completo.required' => 'El nombre completo es obligatorio.',
         ]);
 
-        \App\Models\Pasajero::create($validated);
+        Pasajero::create($validated);
 
         return redirect()->route('pasajeros.index')->with('success', 'Pasajero cargado exitosamente.');
     }
@@ -47,13 +84,17 @@ class PasajeroController extends Controller
         //
     }
 
-    public function edit(\App\Models\Pasajero $pasajero)
+    public function edit(Pasajero $pasajero)
     {
-        $centros = \App\Models\CentroCosto::with('empresa')->get();
+        $empresaIds = $this->getEmpresaIds();
+        $centros = CentroCosto::with('empresa')
+            ->whereIn('empresa_id', $empresaIds)
+            ->get();
+
         return view('pasajeros.edit', compact('pasajero', 'centros'));
     }
 
-    public function update(Request $request, \App\Models\Pasajero $pasajero)
+    public function update(Request $request, Pasajero $pasajero)
     {
         $validated = $request->validate([
             'nombre_completo' => 'required|string|max:255',

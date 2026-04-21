@@ -13,11 +13,14 @@
         </div>
         
         <div class="flex flex-wrap items-center gap-4 justify-end w-full lg:w-auto">
-            @if(auth()->user()->isAdmin() || auth()->user()->isSocio())
+            @if(auth()->user()->isSuperAdmin() || auth()->user()->isOwner())
             <div class="bg-slate-900 border border-white/5 px-5 py-2.5 rounded-2xl flex items-center gap-4 shadow-xl">
-                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">{{ auth()->user()->isSocio() && auth()->user()->socio->nivel == 1 ? __('Sucursal / Provincia') : __('Socio / Sucursal') }}:</span>
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">{{ auth()->user()->isOwner() ? __('Sucursal / Provincia') : __('Socio / Sucursal') }}:</span>
                 <form action="{{ route('dashboard') }}" method="GET" id="socioForm">
                     <select name="socio_id" onchange="document.getElementById('socioForm').submit()" class="bg-transparent text-sm font-black text-white focus:outline-none cursor-pointer">
+                        @if(auth()->user()->isSuperAdmin() || auth()->user()->isOwner())
+                            <option value="all" {{ $selectedSocioId == 'all' ? 'selected' : '' }} class="bg-slate-900 font-bold text-indigo-400">-- {{ __('TODAS LAS PROVINCIAS') }} --</option>
+                        @endif
                         @foreach($socios as $s)
                             <option value="{{ $s->id }}" {{ $selectedSocioId == $s->id ? 'selected' : '' }} class="bg-slate-900">{{ $s->nombre }}</option>
                         @endforeach

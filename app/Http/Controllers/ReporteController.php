@@ -99,28 +99,31 @@ class ReporteController extends Controller
 
         $query = Empresa::with(['viajes.pasajero', 'centrosCosto.viajes.pasajero', 'centrosCosto.pasajeros']);
 
-        if ($user->isAdmin()) {
+        if ($user->isSuperAdmin()) {
             $socios = Socio::all();
-            $selectedSocioId = $request->get('socio_id', $socios->first()?->id);
-            $query->where('socio_id', $selectedSocioId);
-        } elseif ($user->isSocio()) {
-            $mySocio = $user->socio;
-            if ($mySocio->nivel == 1) {
-                // Dueño Marca Blanca: Ve todas sus provincias
-                $provincialIds = $mySocio->children()->pluck('id')->toArray();
-                $provincialIds[] = $mySocio->id; // Por si tiene empresas directas
-                
-                // Si el dueño quiere filtrar por una provincia específica
-                $selectedSocioId = $request->get('socio_id', $mySocio->id);
-                $query->where('socio_id', $selectedSocioId);
-                
-                // Lista de sus provincias para el selector
-                $socios = Socio::whereIn('id', $provincialIds)->get();
-            } else {
-                // Jefe de Provincia: Solo ve su provincia
-                $selectedSocioId = $mySocio->id;
+            $selectedSocioId = $request->get('socio_id', 'all');
+            
+            if ($selectedSocioId !== 'all') {
                 $query->where('socio_id', $selectedSocioId);
             }
+        } elseif ($user->isOwner()) {
+            $mySocio = $user->socio;
+            $provincialIds = $mySocio->children()->pluck('id')->toArray();
+            $provincialIds[] = $mySocio->id;
+            
+            $selectedSocioId = $request->get('socio_id', 'all');
+            
+            if ($selectedSocioId === 'all') {
+                $query->whereIn('socio_id', $provincialIds);
+            } else {
+                $query->where('socio_id', $selectedSocioId);
+            }
+            
+            $socios = Socio::whereIn('id', $provincialIds)->get();
+        } elseif ($user->isSocio()) {
+            // Nivel 2: Solo ve su provincia
+            $selectedSocioId = $user->socio->id;
+            $query->where('socio_id', $selectedSocioId);
         } elseif ($user->isEmpresa()) {
             $selectedEmpresaId = $user->empresa_id;
             $query->where('id', $selectedEmpresaId);

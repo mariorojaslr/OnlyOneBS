@@ -3,15 +3,46 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\CentroCosto;
+use App\Models\Empresa;
 
 class CentroCostoController extends Controller
 {
+    /**
+     * Helper: obtener IDs de empresas visibles para el usuario actual.
+     */
+    private function getEmpresaIds()
+    {
+        $user = auth()->user();
+
+        if ($user->isSuperAdmin()) {
+            return Empresa::pluck('id')->toArray();
+        } elseif ($user->isOwner() || $user->isSocio()) {
+            $mySocio = $user->socio;
+            if ($mySocio && $mySocio->nivel == 1) {
+                $socioIds = $mySocio->children()->pluck('id')->toArray();
+                $socioIds[] = $mySocio->id;
+                return Empresa::whereIn('socio_id', $socioIds)->pluck('id')->toArray();
+            } else {
+                return Empresa::where('socio_id', $mySocio->id)->pluck('id')->toArray();
+            }
+        } elseif ($user->isEmpresa()) {
+            return [$user->empresa_id];
+        }
+
+        return [];
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $centros = \App\Models\CentroCosto::with('empresa')->get();
+        $empresaIds = $this->getEmpresaIds();
+        $centros = CentroCosto::with('empresa')
+            ->whereIn('empresa_id', $empresaIds)
+            ->get();
+
         return view('centros-costo.index', compact('centros'));
     }
 
@@ -39,13 +70,15 @@ class CentroCostoController extends Controller
         //
     }
 
-    public function edit(\App\Models\CentroCosto $centros_costo)
+    public function edit(CentroCosto $centros_costo)
     {
-        $empresas = \App\Models\Empresa::all();
+        $empresaIds = $this->getEmpresaIds();
+        $empresas = Empresa::whereIn('id', $empresaIds)->get();
+
         return view('centros-costo.edit', ['centro' => $centros_costo, 'empresas' => $empresas]);
     }
 
-    public function update(Request $request, \App\Models\CentroCosto $centros_costo)
+    public function update(Request $request, CentroCosto $centros_costo)
     {
         $validated = $request->validate([
             'numero' => 'nullable|string|max:255',
