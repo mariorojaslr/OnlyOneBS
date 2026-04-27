@@ -93,50 +93,110 @@ class ReporteController extends Controller
     public function dashboard(Request $request)
     {
         $user = auth()->user();
-        $socios = [];
-        $selectedSocioId = null;
-        $selectedEmpresaId = null;
+        $view = $request->get('view', 'apps'); // apps, fleets, companies, details
+        $l1_id = $request->get('l1_id');
+        $l2_id = $request->get('l2_id');
+        $empresa_id = $request->get('empresa_id');
 
-        $query = Empresa::with(['viajes.pasajero', 'centrosCosto.viajes.pasajero', 'centrosCosto.pasajeros']);
+        $data = [
+            'level' => $view,
+            'items' => [],
+            'parent' => null,
+            'stats' => []
+        ];
 
+        // Lógica de navegación jerárquica
         if ($user->isSuperAdmin()) {
-            $socios = Socio::all();
-            $selectedSocioId = $request->get('socio_id', 'all');
-            
-            if ($selectedSocioId !== 'all') {
-                $query->where('socio_id', $selectedSocioId);
+            if ($view === 'apps') {
+                $data['items'] = Socio::where('nivel', 1)->get();
+            } elseif ($view === 'fleets' && $l1_id) {
+                $data['items'] = Socio::where('parent_id', $l1_id)->get();
+                $data['parent'] = Socio::find($l1_id);
+            } elseif ($view === 'companies' && $l2_id) {
+                $data['items'] = Empresa::where('socio_id', $l2_id)->get();
+                $data['parent'] = Socio::find($l2_id);
+            } elseif ($view === 'details' && $empresa_id) {
+                return $this->getEmpresaDetails($empresa_id);
+            } else {
+                $data['items'] = Socio::where('nivel', 1)->get();
+                $data['level'] = 'apps';
             }
         } elseif ($user->isOwner()) {
+            // Un dueño de App (Verde) empieza viendo sus flotas (Amarillo)
             $mySocio = $user->socio;
-            
-            if ($mySocio) {
-                $provincialIds = $mySocio->children()->pluck('id')->toArray();
-                $provincialIds[] = $mySocio->id;
-                
-                $selectedSocioId = $request->get('socio_id', 'all');
-                
-                if ($selectedSocioId === 'all') {
-                    $query->whereIn('socio_id', $provincialIds);
-                } else {
-                    $query->where('socio_id', $selectedSocioId);
-                }
-                
-                $socios = Socio::whereIn('id', $provincialIds)->get();
-            } else {
-                // Si es owner pero no tiene socio asignado, no devolvemos nada para evitar error
-                $query->whereRaw('1 = 0');
-                $socios = [];
+            if ($view === 'fleets' || $view === 'apps') {
+                $data['items'] = Socio::where('parent_id', $mySocio->id)->get();
+                $data['level'] = 'fleets';
+                $data['parent'] = $mySocio;
+            } elseif ($view === 'companies' && $l2_id) {
+                $data['items'] = Empresa::where('socio_id', $l2_id)->get();
+                $data['parent'] = Socio::find($l2_id);
+            } elseif ($view === 'details' && $empresa_id) {
+                return $this->getEmpresaDetails($empresa_id);
             }
         } elseif ($user->isSocio()) {
-            // Nivel 2: Solo ve su provincia
-            $selectedSocioId = $user->socio->id;
-            $query->where('socio_id', $selectedSocioId);
+            // Un dueño de Flota (Amarillo) empieza viendo sus empresas (Celeste)
+            $mySocio = $user->socio;
+            if ($view === 'details' && $empresa_id) {
+                return $this->getEmpresaDetails($empresa_id);
+            } else {
+                $data['items'] = Empresa::where('socio_id', $mySocio->id)->get();
+                $data['level'] = 'companies';
+                $data['parent'] = $mySocio;
+            }
         } elseif ($user->isEmpresa()) {
-            $selectedEmpresaId = $user->empresa_id;
-            $query->where('id', $selectedEmpresaId);
+            return $this->getEmpresaDetails($user->empresa_id);
         }
 
-        $empresas = $query->get();
+        return view('dashboard_v2', $data);
+    }
+
+    private function getEmpresaDetails($empresaId)
+    {
+        $empresa = Empresa::with(['viajes.pasajero', 'centrosCosto.viajes.pasajero', 'centrosCosto.pasajeros'])->findOrFail($empresaId);
+        
+        $centros = [];
+        foreach ($empresa->centrosCosto as $cc) {
+            $viajesCC = $empresa->viajes->where('centro_costo_id', $cc->id);
+            $pasajeros = [];
+            $viajesPorPasajero = $viajesCC->groupBy('pasajero_id');
+            
+            foreach ($viajesPorPasajero as $pId => $pViajes) {
+                $pasajeroObj = $pViajes->first()->pasajero;
+                if (!$pasajeroObj) continue;
+
+                $pasajeros[] = [
+                    'nombre' => $pasajeroObj->nombre_completo,
+                    'viajes_count' => $pViajes->count(),
+                    'monto_total' => (float) $pViajes->sum('monto'),
+                    'km_total' => (float) $this->sumarDistancias($pViajes),
+                    'lista_viajes' => $pViajes->map(fn($v) => [
+                        'fecha' => $v->fecha_inicio ? \Carbon\Carbon::parse($v->fecha_inicio)->format('d/m/Y H:i') : 'N/A',
+                        'origen' => $v->origen,
+                        'destino' => $v->destino,
+                        'monto' => (float) $v->monto,
+                        'distancia' => $this->parseDistancia($v->distancia)
+                    ])
+                ];
+            }
+
+            $centros[] = [
+                'model' => $cc,
+                'viajes_count' => $viajesCC->count(),
+                'monto_total' => (float) $viajesCC->sum('monto'),
+                'km_total' => (float) $this->sumarDistancias($viajesCC),
+                'pasajeros' => $pasajeros
+            ];
+        }
+
+        return view('dashboard_details', [
+            'level' => 'details',
+            'empresa' => $empresa,
+            'centros' => $centros,
+            'monto_total' => (float) $empresa->viajes->sum('monto'),
+            'km_total' => (float) $this->sumarDistancias($empresa->viajes)
+        ]);
+    }
 
         $dataEmpresas = [];
         $graficoLabels = [];
