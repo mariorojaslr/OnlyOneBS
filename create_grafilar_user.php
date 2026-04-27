@@ -16,7 +16,6 @@ $password = 'Cele-0920';
 $socio = Socio::updateOrCreate(
     ['nombre' => 'Grafilar Nivel 1'],
     [
-        'email' => $email, // Se guardará si la columna existiera, pero por ahora evitamos el error en el WHERE
         'nivel' => 1,
         'uuid' => (string) \Illuminate\Support\Str::uuid(),
         'pais' => 'Argentina'
