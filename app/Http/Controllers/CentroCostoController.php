@@ -19,13 +19,16 @@ class CentroCostoController extends Controller
             return Empresa::pluck('id')->toArray();
         } elseif ($user->isOwner() || $user->isSocio()) {
             $mySocio = $user->socio;
-            if ($mySocio && $mySocio->nivel == 1) {
-                $socioIds = $mySocio->children()->pluck('id')->toArray();
-                $socioIds[] = $mySocio->id;
-                return Empresa::whereIn('socio_id', $socioIds)->pluck('id')->toArray();
-            } else {
-                return Empresa::where('socio_id', $mySocio->id)->pluck('id')->toArray();
+            if ($mySocio) {
+                if ($mySocio->nivel == 1) {
+                    $socioIds = $mySocio->children()->pluck('id')->toArray();
+                    $socioIds[] = $mySocio->id;
+                    return Empresa::whereIn('socio_id', $socioIds)->pluck('id')->toArray();
+                } else {
+                    return Empresa::where('socio_id', $mySocio->id)->pluck('id')->toArray();
+                }
             }
+            return [];
         } elseif ($user->isEmpresa()) {
             return [$user->empresa_id];
         }
