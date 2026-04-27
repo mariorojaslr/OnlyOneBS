@@ -14,9 +14,9 @@ $password = 'Cele-0920';
 
 // 1. Crear el Socio de Nivel 1 (Owner/Dueño)
 $socio = Socio::updateOrCreate(
-    ['email' => $email],
+    ['nombre' => 'Grafilar Nivel 1'],
     [
-        'nombre' => 'Grafilar Nivel 1',
+        'email' => $email, // Se guardará si la columna existiera, pero por ahora evitamos el error en el WHERE
         'nivel' => 1,
         'uuid' => (string) \Illuminate\Support\Str::uuid(),
         'pais' => 'Argentina'
