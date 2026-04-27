@@ -108,18 +108,25 @@ class ReporteController extends Controller
             }
         } elseif ($user->isOwner()) {
             $mySocio = $user->socio;
-            $provincialIds = $mySocio->children()->pluck('id')->toArray();
-            $provincialIds[] = $mySocio->id;
             
-            $selectedSocioId = $request->get('socio_id', 'all');
-            
-            if ($selectedSocioId === 'all') {
-                $query->whereIn('socio_id', $provincialIds);
+            if ($mySocio) {
+                $provincialIds = $mySocio->children()->pluck('id')->toArray();
+                $provincialIds[] = $mySocio->id;
+                
+                $selectedSocioId = $request->get('socio_id', 'all');
+                
+                if ($selectedSocioId === 'all') {
+                    $query->whereIn('socio_id', $provincialIds);
+                } else {
+                    $query->where('socio_id', $selectedSocioId);
+                }
+                
+                $socios = Socio::whereIn('id', $provincialIds)->get();
             } else {
-                $query->where('socio_id', $selectedSocioId);
+                // Si es owner pero no tiene socio asignado, no devolvemos nada para evitar error
+                $query->whereRaw('1 = 0');
+                $socios = [];
             }
-            
-            $socios = Socio::whereIn('id', $provincialIds)->get();
         } elseif ($user->isSocio()) {
             // Nivel 2: Solo ve su provincia
             $selectedSocioId = $user->socio->id;
