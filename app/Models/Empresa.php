@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Empresa extends Model
 {
-    protected $fillable = ['uuid', 'nombre', 'razon_social', 'cuenta_corriente', 'socio_id'];
+    protected $fillable = ['uuid', 'nombre', 'razon_social', 'cuenta_corriente', 'socio_id', 'ciclo_facturacion', 'moneda'];
 
     public function socio()
     {

@@ -63,6 +63,8 @@ class EmpresaController extends Controller
             'uuid' => 'required|string|max:255|unique:empresas',
             'razon_social' => 'nullable|string|max:255',
             'cuenta_corriente' => 'nullable|string|max:255',
+            'ciclo_facturacion' => 'required|in:semanal,quincenal,mensual',
+            'moneda' => 'required|in:ARS,USD',
             'socio_id' => 'required|exists:socios,id'
         ]);
 
@@ -97,6 +99,8 @@ class EmpresaController extends Controller
             'uuid' => 'required|string|max:255|unique:empresas,uuid,'.$empresa->id,
             'razon_social' => 'nullable|string|max:255',
             'cuenta_corriente' => 'nullable|string|max:255',
+            'ciclo_facturacion' => 'required|in:semanal,quincenal,mensual',
+            'moneda' => 'required|in:ARS,USD',
             'socio_id' => 'required|exists:socios,id'
         ]);
 

@@ -34,15 +34,20 @@
                     <input type="text" name="uuid" class="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" required placeholder="Ej: TECH-SOL-2026">
                 </div>
 
-                <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">{{ __('Vincular a Socio / Provincia Responsable') }}</label>
-                    <select name="socio_id" class="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" required>
-                        <option value="">{{ __('Seleccione responsable...') }}</option>
-                        @foreach($socios as $s)
-                            <option value="{{ $s->id }}">{{ $s->nombre }} ({{ $s->nivel == 1 ? 'Owner' : 'Sucursal' }})</option>
-                        @endforeach
-                    </select>
-                </div>
+                @if(count($socios) > 1)
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">{{ __('Vincular a Flota Responsable') }}</label>
+                        <select name="socio_id" class="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" required>
+                            <option value="">{{ __('Seleccione responsable...') }}</option>
+                            @foreach($socios as $s)
+                                <option value="{{ $s->id }}">{{ $s->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @else
+                    <!-- Campo oculto porque estamos en una "Habitación" -->
+                    <input type="hidden" name="socio_id" value="{{ $socios->first()->id ?? '' }}">
+                @endif
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">{{ __('Razón Social (Opcional)') }}</label>
@@ -52,6 +57,23 @@
                 <div>
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">{{ __('Cuenta Corriente / ID Ref (Opcional)') }}</label>
                     <input type="text" name="cuenta_corriente" class="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">{{ __('Ciclo de Facturación') }}</label>
+                    <select name="ciclo_facturacion" class="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" required>
+                        <option value="semanal">{{ __('Semanal') }}</option>
+                        <option value="quincenal">{{ __('Quincenal') }}</option>
+                        <option value="mensual" selected>{{ __('Mensual') }}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">{{ __('Moneda') }}</label>
+                    <select name="moneda" class="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" required>
+                        <option value="ARS" selected>{{ __('Pesos Argentinos (ARS)') }}</option>
+                        <option value="USD">{{ __('Dólares Estadounidenses (USD)') }}</option>
+                    </select>
                 </div>
             </div>
 

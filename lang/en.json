@@ -20,5 +20,16 @@
     "Estado": "Status",
     "Consola de Conectividad": "Connectivity Console",
     "Guardar Configuración": "Save Settings",
-    "Subir Reporte CSV": "Upload CSV Report"
+    "Subir Reporte CSV": "Upload CSV Report",
+    "Ciclo de Facturación": "Billing Cycle",
+    "Semanal": "Weekly",
+    "Quincenal": "Biweekly",
+    "Mensual": "Monthly",
+    "Moneda": "Currency",
+    "Moneda de Cobro": "Billing Currency",
+    "Cuentas Corporativas": "Corporate Accounts",
+    "Pesos Argentinos (ARS)": "Argentine Pesos (ARS)",
+    "Dólares Estadounidenses (USD)": "US Dollars (USD)",
+    "Habitación": "Room",
+    "Información Comercial": "Commercial Information"
 }
