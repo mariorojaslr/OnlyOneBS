@@ -113,22 +113,30 @@
                     @endif
                 @endif
 
-                @if(session('room_id') || auth()->user()->isSocio())
-                    <!-- Opciones Locales (Dentro de la habitación de la Flota) -->
+                @if(session('room_id') || session('empresa_room_id') || auth()->user()->isSocio() || auth()->user()->isEmpresa())
+                    <!-- Opciones Locales (Dentro de la habitación) -->
                     @php
-                        // Obtenemos el nombre de la flota actual para mostrarlo en el menú
-                        $roomId = session('room_id') ?? auth()->user()->socio_id;
-                        $roomName = \App\Models\Socio::find($roomId)->nombre ?? 'Flota';
+                        if (session('empresa_room_id') || auth()->user()->isEmpresa()) {
+                            $empresaId = session('empresa_room_id') ?? auth()->user()->empresa_id;
+                            $roomName = \App\Models\Empresa::find($empresaId)->nombre ?? 'Empresa';
+                            $isEmpresaRoom = true;
+                        } else {
+                            $roomId = session('room_id') ?? auth()->user()->socio_id;
+                            $roomName = \App\Models\Socio::find($roomId)->nombre ?? 'Flota';
+                            $isEmpresaRoom = false;
+                        }
                     @endphp
                     
                     <div class="pt-8 pb-3 px-4">
                         <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Habitación: {{ $roomName }}</p>
                     </div>
                     
-                    <a href="{{ route('empresas.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->routeIs('empresas.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        <span class="font-bold text-sm">{{ __('Cuentas Corporativas') }}</span>
-                    </a>
+                    @if(!$isEmpresaRoom)
+                        <a href="{{ route('empresas.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->routeIs('empresas.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white' }}">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            <span class="font-bold text-sm">{{ __('Cuentas Corporativas') }}</span>
+                        </a>
+                    @endif
                     <a href="{{ route('centros-costo.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->routeIs('centros-costo.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                         <span class="font-bold text-sm">{{ __('Centros de Costo') }}</span>

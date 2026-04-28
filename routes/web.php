@@ -35,7 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('pasajeros', PasajeroController::class);
     
     // Facturación / Cierres
-    Route::resource('facturacion', FacturacionController::class)->only(['index', 'create', 'store', 'show']);
+    Route::resource('facturacion', \App\Http\Controllers\FacturacionController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('users', UserController::class);
 
     Route::get('/configuracion', [\App\Http\Controllers\ConfiguracionController::class, 'index'])->name('configuracion.index');

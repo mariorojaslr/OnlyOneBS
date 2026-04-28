@@ -16,15 +16,27 @@ class UserController extends Controller
         $user = auth()->user();
         $users = [];
 
-        if (session('room_id')) {
-            $users = User::where('socio_id', session('room_id'))->orderBy('role')->get();
+        if (session('empresa_room_id')) {
+            $users = User::where('empresa_id', session('empresa_room_id'))->orderBy('role')->get();
+        } elseif (session('room_id')) {
+            $room_id = session('room_id');
+            $users = User::where(function($q) use ($room_id) {
+                $q->where('socio_id', $room_id)
+                  ->orWhereHas('empresa', function($qEmp) use ($room_id) {
+                      $qEmp->where('socio_id', $room_id);
+                  });
+            })->orderBy('role')->get();
         } elseif ($user->isSuperAdmin()) {
             $users = User::with(['socio', 'empresa'])->orderBy('role')->get();
         } elseif ($user->isSocio()) {
             $users = User::where('socio_id', $user->socio_id)->orderBy('name')->get();
         } else {
-             // Si el rol es Empresa o AdminView, solo se ve a sí mismo por seguridad
-             $users = User::where('id', $user->id)->get();
+             // Si el rol es Empresa o AdminView, solo se ve a sí mismo o a los de su empresa
+             if ($user->empresa_id) {
+                 $users = User::where('empresa_id', $user->empresa_id)->orderBy('name')->get();
+             } else {
+                 $users = User::where('id', $user->id)->get();
+             }
         }
 
         return view('users.index', compact('users'));

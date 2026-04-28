@@ -16,6 +16,10 @@ class PasajeroController extends Controller
     {
         $user = auth()->user();
 
+        if (session('empresa_room_id')) {
+            return [session('empresa_room_id')];
+        }
+
         if (session('room_id')) {
             return Empresa::where('socio_id', session('room_id'))->pluck('id')->toArray();
         }
