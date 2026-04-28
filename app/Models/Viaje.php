@@ -17,8 +17,14 @@ class Viaje extends Model
         'fecha_fin',
         'monto',
         'distancia',
-        'estado'
+        'estado',
+        'cierre_facturacion_id'
     ];
+
+    public function cierreFacturacion()
+    {
+        return $this->belongsTo(CierreFacturacion::class);
+    }
 
     public function pasajero()
     {
