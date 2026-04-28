@@ -15,6 +15,10 @@ class CentroCostoController extends Controller
     {
         $user = auth()->user();
 
+        if (session('room_id')) {
+            return Empresa::where('socio_id', session('room_id'))->pluck('id')->toArray();
+        }
+
         if ($user->isSuperAdmin()) {
             return Empresa::pluck('id')->toArray();
         } elseif ($user->isOwner() || $user->isSocio()) {

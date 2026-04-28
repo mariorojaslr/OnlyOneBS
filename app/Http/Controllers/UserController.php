@@ -16,7 +16,9 @@ class UserController extends Controller
         $user = auth()->user();
         $users = [];
 
-        if ($user->isSuperAdmin()) {
+        if (session('room_id')) {
+            $users = User::where('socio_id', session('room_id'))->orderBy('role')->get();
+        } elseif ($user->isSuperAdmin()) {
             $users = User::with(['socio', 'empresa'])->orderBy('role')->get();
         } elseif ($user->isSocio()) {
             $users = User::where('socio_id', $user->socio_id)->orderBy('name')->get();
@@ -39,7 +41,11 @@ class UserController extends Controller
             User::ROLE_ADMIN_VIEW => 'Auditor (Solo Lectura)'
         ];
 
-        if ($user->isSuperAdmin()) {
+        if (session('room_id')) {
+            $socios = Socio::where('id', session('room_id'))->get();
+            $empresas = Empresa::where('socio_id', session('room_id'))->get();
+            unset($roles[User::ROLE_ADMIN]);
+        } elseif ($user->isSuperAdmin()) {
             $socios = Socio::all();
             $empresas = Empresa::all();
         } else {
@@ -65,8 +71,10 @@ class UserController extends Controller
         $data = $request->all();
         $data['password'] = Hash::make($request->password);
 
-        // Forzar socio_id si el creador es un Socio
-        if (auth()->user()->isSocio()) {
+        // Forzar socio_id si el creador es un Socio o si está en una Habitación
+        if (session('room_id')) {
+            $data['socio_id'] = session('room_id');
+        } elseif (auth()->user()->isSocio()) {
             $data['socio_id'] = auth()->user()->socio_id;
         }
 
@@ -91,7 +99,11 @@ class UserController extends Controller
             User::ROLE_ADMIN_VIEW => 'Auditor (Solo Lectura)'
         ];
 
-        if ($currentUser->isSuperAdmin()) {
+        if (session('room_id')) {
+            $socios = Socio::where('id', session('room_id'))->get();
+            $empresas = Empresa::where('socio_id', session('room_id'))->get();
+            unset($roles[User::ROLE_ADMIN]);
+        } elseif ($currentUser->isSuperAdmin()) {
             $socios = Socio::all();
             $empresas = Empresa::all();
         } else {

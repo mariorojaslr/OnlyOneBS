@@ -108,35 +108,44 @@ class ReporteController extends Controller
         // Lógica de navegación jerárquica
         if ($user->isSuperAdmin()) {
             if ($view === 'apps') {
+                $request->session()->forget('room_id');
                 $data['items'] = Socio::where('nivel', 1)->get();
             } elseif ($view === 'fleets' && $l1_id) {
+                $request->session()->forget('room_id');
                 $data['items'] = Socio::where('parent_id', $l1_id)->get();
                 $data['parent'] = Socio::find($l1_id);
             } elseif ($view === 'companies' && $l2_id) {
+                $request->session()->put('room_id', $l2_id);
                 $data['items'] = Empresa::where('socio_id', $l2_id)->get();
                 $data['parent'] = Socio::find($l2_id);
             } elseif ($view === 'details' && $empresa_id) {
+                $empresa = Empresa::findOrFail($empresa_id);
+                $request->session()->put('room_id', $empresa->socio_id);
                 return $this->getEmpresaDetails($empresa_id);
             } else {
+                $request->session()->forget('room_id');
                 $data['items'] = Socio::where('nivel', 1)->get();
                 $data['level'] = 'apps';
             }
         } elseif ($user->isOwner()) {
-            // Un dueño de App (Verde) empieza viendo sus flotas (Amarillo)
             $mySocio = $user->socio;
             if ($view === 'fleets' || $view === 'apps') {
+                $request->session()->forget('room_id');
                 $data['items'] = Socio::where('parent_id', $mySocio->id)->get();
                 $data['level'] = 'fleets';
                 $data['parent'] = $mySocio;
             } elseif ($view === 'companies' && $l2_id) {
+                $request->session()->put('room_id', $l2_id);
                 $data['items'] = Empresa::where('socio_id', $l2_id)->get();
                 $data['parent'] = Socio::find($l2_id);
             } elseif ($view === 'details' && $empresa_id) {
+                $empresa = Empresa::findOrFail($empresa_id);
+                $request->session()->put('room_id', $empresa->socio_id);
                 return $this->getEmpresaDetails($empresa_id);
             }
         } elseif ($user->isSocio()) {
-            // Un dueño de Flota (Amarillo) empieza viendo sus empresas (Celeste)
             $mySocio = $user->socio;
+            $request->session()->put('room_id', $mySocio->id);
             if ($view === 'details' && $empresa_id) {
                 return $this->getEmpresaDetails($empresa_id);
             } else {
@@ -145,6 +154,7 @@ class ReporteController extends Controller
                 $data['parent'] = $mySocio;
             }
         } elseif ($user->isEmpresa()) {
+            $request->session()->put('room_id', $user->empresa->socio_id);
             return $this->getEmpresaDetails($user->empresa_id);
         }
 

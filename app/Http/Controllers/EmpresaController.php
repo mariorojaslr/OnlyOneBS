@@ -12,7 +12,9 @@ class EmpresaController extends Controller
     public function index()
     {
         $user = auth()->user();
-        if ($user->isAdmin()) {
+        if (session('room_id')) {
+            $empresas = Empresa::where('socio_id', session('room_id'))->get();
+        } elseif ($user->isAdmin()) {
             $empresas = Empresa::with('socio')->get();
         } elseif ($user->isSocio()) {
             $mySocio = $user->socio;
@@ -38,7 +40,9 @@ class EmpresaController extends Controller
         $user = auth()->user();
         $socios = [];
 
-        if ($user->isAdmin()) {
+        if (session('room_id')) {
+            $socios = Socio::where('id', session('room_id'))->get();
+        } elseif ($user->isAdmin()) {
             $socios = Socio::all();
         } elseif ($user->isSocio()) {
             $mySocio = $user->socio;
@@ -62,6 +66,14 @@ class EmpresaController extends Controller
             'socio_id' => 'required|exists:socios,id'
         ]);
 
+        if (session('room_id')) {
+            $validated['socio_id'] = session('room_id');
+        } elseif (auth()->user()->isSocio()) {
+            if (!isset($validated['socio_id'])) {
+                $validated['socio_id'] = auth()->user()->socio_id;
+            }
+        }
+
         Empresa::create($validated);
 
         return redirect()->route('empresas.index')->with('success', __('Empresa creada exitosamente.'));
@@ -70,7 +82,11 @@ class EmpresaController extends Controller
     public function edit(Empresa $empresa)
     {
         $user = auth()->user();
-        $socios = Socio::all();
+        if (session('room_id')) {
+            $socios = Socio::where('id', session('room_id'))->get();
+        } else {
+            $socios = Socio::all();
+        }
         return view('empresas.edit', compact('empresa', 'socios'));
     }
 

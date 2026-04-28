@@ -86,53 +86,65 @@
         <!-- Sidebar -->
         <aside class="w-64 glass-panel border-r border-gray-800 flex flex-col h-full bg-slate-900/50 relative z-20">
             <div class="px-6 py-8 border-b border-gray-800 flex flex-col gap-4">
-                <span class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-500 tracking-tighter">OnlyOneBS</span>
-            </div>
-            <nav class="flex-1 px-4 py-8 space-y-2 overflow-y-auto no-scrollbar">
+                <span class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-500 tracking-tighter">OnlyOne            <nav class="flex-1 px-4 py-8 space-y-2 overflow-y-auto no-scrollbar">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-4 px-6 py-4 rounded-2xl transition-all {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 001 1h3m-6-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     <span class="font-bold text-sm">{{ __('Dashboard') }}</span>
                 </a>
 
-                <a href="{{ route('users.index') }}" class="flex items-center gap-4 px-6 py-4 rounded-2xl transition-all {{ request()->routeIs('users.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <span class="font-bold text-sm">{{ __('Usuarios') }}</span>
-                </a>
+                @if(!session('room_id') && (auth()->user()->isSuperAdmin() || auth()->user()->isOwner()))
+                    <!-- Opciones Globales (Fuera de la habitación) -->
+                    <a href="{{ route('socios.index') }}" class="flex items-center gap-4 px-6 py-4 rounded-2xl transition-all {{ request()->routeIs('socios.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <span class="font-bold text-sm">{{ __('Dueños / Flotas') }}</span>
+                    </a>
+                    
+                    <a href="{{ route('users.index') }}" class="flex items-center gap-4 px-6 py-4 rounded-2xl transition-all {{ request()->routeIs('users.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ __('Usuarios del Sistema') }}</span>
+                    </a>
 
-                <a href="{{ route('socios.index') }}" class="flex items-center gap-4 px-6 py-4 rounded-2xl transition-all {{ request()->routeIs('socios.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                    <span class="font-bold text-sm">{{ __('Dueños / Flotas') }}</span>
-                </a>
-                
-                <div class="pt-8 pb-3 px-4">
-                    <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">{{ __('Parámetros del Sistema') }}</p>
-                </div>
-                
-                <a href="{{ route('empresas.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->routeIs('empresas.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                    <span class="font-bold text-sm">{{ __('Empresas') }}</span>
-                </a>
-                <a href="{{ route('centros-costo.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->routeIs('centros-costo.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                    <span class="font-bold text-sm">{{ __('Centros de Costo') }}</span>
-                </a>
-                <a href="{{ route('pasajeros.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->routeIs('pasajeros.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <span class="font-bold text-sm">{{ __('Pasajeros') }}</span>
-                </a>
-                
-                <div class="my-8 border-t border-slate-800 mx-4"></div>
-                
-                <a href="{{ route('sincronizar') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 text-emerald-400 hover:bg-emerald-500/10">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    <span class="font-bold text-sm">{{ __('Subir Reporte CSV') }}</span>
-                </a>
+                    @if(auth()->user()->isAdmin())
+                    <div class="my-8 border-t border-slate-800 mx-4"></div>
+                    <a href="{{ route('configuracion.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 text-amber-400 hover:bg-amber-500/10">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ __('Configuración API') }}</span>
+                    </a>
+                    @endif
+                @endif
 
-                @if(auth()->user()->isAdmin())
-                <a href="{{ route('configuracion.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 text-amber-400 hover:bg-amber-500/10">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    <span class="font-bold text-sm">{{ __('Configuración API') }}</span>
-                </a>
+                @if(session('room_id') || auth()->user()->isSocio())
+                    <!-- Opciones Locales (Dentro de la habitación de la Flota) -->
+                    @php
+                        // Obtenemos el nombre de la flota actual para mostrarlo en el menú
+                        $roomId = session('room_id') ?? auth()->user()->socio_id;
+                        $roomName = \App\Models\Socio::find($roomId)->nombre ?? 'Flota';
+                    @endphp
+                    
+                    <div class="pt-8 pb-3 px-4">
+                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Habitación: {{ $roomName }}</p>
+                    </div>
+                    
+                    <a href="{{ route('empresas.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->routeIs('empresas.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <span class="font-bold text-sm">{{ __('Cuentas Corporativas') }}</span>
+                    </a>
+                    <a href="{{ route('centros-costo.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->routeIs('centros-costo.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        <span class="font-bold text-sm">{{ __('Centros de Costo') }}</span>
+                    </a>
+                    <a href="{{ route('pasajeros.index') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->routeIs('pasajeros.*') ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ __('Pasajeros') }}</span>
+                    </a>
+                    
+                    <div class="my-8 border-t border-slate-800 mx-4"></div>
+                    
+                    <a href="{{ route('sincronizar') }}" class="flex items-center px-4 py-3 rounded-2xl transition-all duration-300 text-emerald-400 hover:bg-emerald-500/10">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <span class="font-bold text-sm">{{ __('Subir Archivo CSV') }}</span>
+                    </a>
+                @endif     </a>
                 @endif
                 
                 <div class="mt-auto pt-10 px-4 pb-12">
